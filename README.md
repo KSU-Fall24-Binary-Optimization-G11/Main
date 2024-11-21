@@ -31,6 +31,7 @@ Conventional methods of binary search do not work on skewed or non-uniform datas
     - **Binary Search**
     - **Exponential Search**
     - **Interpolation Search**
+    - **Hybrid Search**
 - **Complexity Analysis**:
     - **Time Complexity**: Displays Big O notation.
     - **Execution Time**: Measures and displays actual runtime.
