@@ -1,9 +1,9 @@
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import javax.swing.*;
 
 public class MainApp {
 
@@ -13,7 +13,7 @@ public class MainApp {
     private int numElements = 1000000;
     private int elementSize = 4; // 4 bytes for integers
     private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-    private String[] algorithms = {"Binary Search", "Exponential Search", "Interpolation Search"};
+    private String[] algorithms = {"Binary Search", "Exponential Search", "Interpolation Search", "Hybrid Search"};
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainApp().createAndShowGUI());
@@ -127,6 +127,9 @@ public class MainApp {
                                 break;
                             case "Interpolation Search":
                                 index = searcher.interpolationSearch(target);
+                                break;
+                            case "Hybrid Search":
+                                index = searcher.hybridSearch(target);
                                 break;
                             default:
                                 JOptionPane.showMessageDialog(frame, "Invalid algorithm selection.", "Error", JOptionPane.ERROR_MESSAGE);
