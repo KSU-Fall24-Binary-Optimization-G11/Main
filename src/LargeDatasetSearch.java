@@ -1,8 +1,8 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.ByteOrder;
 import javax.swing.JTextArea;
 
 public class LargeDatasetSearch {
@@ -183,6 +183,83 @@ public class LargeDatasetSearch {
         outputExecutionTime(startTime, endTime);
         return -1;
     }
+    public int hybridSearch(long target) {
+        outputArea.append("Algorithm: Hybrid Search (Exponential + Interpolation + Binary)\n");
+    
+        long startTime = System.nanoTime();
+    
+        // Step 1: Exponential Search to narrow the range
+        if (readElement(0) == target) {
+            outputArea.append("Found target at index 0\n");
+            long endTime = System.nanoTime();
+            outputExecutionTime(startTime, endTime);
+            return 0;
+        }
+    
+        int range = 1;
+        while (range < numElements && readElement(range) < target) {
+            outputArea.append(String.format("Exponential step: range = %d\n", range));
+            range *= 2;
+        }
+    
+        int left = range / 2;
+        int right = Math.min(range, numElements - 1);
+        outputArea.append(String.format("Range narrowed to: left = %d, right = %d\n", left, right));
+    
+        // Step 2: Interpolation Search within the range
+        while (left <= right && target >= readElement(left) && target <= readElement(right)) {
+            if (left == right) {
+                if (readElement(left) == target) {
+                    outputArea.append("Found target at index " + left + "\n");
+                    long endTime = System.nanoTime();
+                    outputExecutionTime(startTime, endTime);
+                    return left;
+                }
+                break;
+            }
+    
+            long leftVal = readElement(left);
+            long rightVal = readElement(right);
+    
+            // Avoid division by zero
+            if (rightVal == leftVal) {
+                break;
+            }
+    
+            // Estimate the position
+            int pos = left + (int)(((double)(right - left) / (rightVal - leftVal)) * (target - leftVal));
+    
+            // Ensure pos is within array bounds
+            if (pos < left || pos > right) {
+                break;
+            }
+    
+            long posValue = readElement(pos);
+            outputArea.append(String.format("Estimated position %d: value = %d\n", pos, posValue));
+    
+            if (posValue == target) {
+                outputArea.append("Found target at index " + pos + "\n");
+                long endTime = System.nanoTime();
+                outputExecutionTime(startTime, endTime);
+                return pos;
+            } else if (posValue < target) {
+                left = pos + 1;
+                outputArea.append(String.format("Target greater than value at index %d. New left index: %d\n", pos, left));
+            } else {
+                right = pos - 1;
+                outputArea.append(String.format("Target less than value at index %d. New right index: %d\n", pos, right));
+            }
+        }
+    
+        // Step 3: Binary Search fallback
+        outputArea.append("Switching to Binary Search.\n");
+        int result = binarySearchInRange(target, left, right);
+    
+        long endTime = System.nanoTime();
+        outputExecutionTime(startTime, endTime);
+        return result;
+    }
+    
 
     private void outputExecutionTime(long startTime, long endTime) {
         long duration = endTime - startTime;
